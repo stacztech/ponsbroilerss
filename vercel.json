@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "projects": [
+    {
+      "name": "meat-website",
+      "root": "meat-website",
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist/meat-website",
+      "framework": "angular"
+    },
+    {
+      "name": "backend",
+      "root": "backend",
+      "outputDirectory": "dist",
+      "buildCommand": "npm install",
+      "devCommand": "npm run dev",
+      "installCommand": "npm install",
+      "startCommand": "node index.js"
+    }
+  ]
+}
