@@ -29,7 +29,7 @@ export const sendEmailOTP = async (email, otp) => {
     for (let i = 0; i < configurations.length; i++) {
         try {
             console.log(`Trying email configuration ${i + 1}...`);
-            const transporter = nodemailer.createTransporter(configurations[i]);
+            const transporter = nodemailer.createTransport(configurations[i]);
             
             // Test the connection
             await transporter.verify();

@@ -21,7 +21,7 @@ const createTransporter = () => {
 	});
 
 	// Try port 587 first (more reliable)
-	return nodemailer.createTransporter({
+	return nodemailer.createTransport({
 		host: "smtp.gmail.com",
 		port: 587,
 		secure: false,
