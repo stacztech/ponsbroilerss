@@ -105,7 +105,8 @@ export class AuthService {
       next: (response) => {
         this.currentUserSubject.next(response.user);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Auth check failed:', error);
         this.currentUserSubject.next(null);
       }
     });

@@ -21,17 +21,29 @@ const __dirname = path.resolve();
 const corsOptions = {
   origin: [
     "https://ponsbroilerss-frontend.vercel.app",
-    "http://localhost:4200"
+    "http://localhost:4200",
+    "http://localhost:3000"
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie'],
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
 
-app.use(express.json()); // allows us to parse incoming requests:req.body
+// Add preflight handling
+app.options('*', cors(corsOptions));
+
+app.use(express.json({ limit: '10mb' })); // allows us to parse incoming requests:req.body
 app.use(cookieParser()); // allows us to parse incoming cookies
+
+// Add request logging for debugging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
@@ -45,6 +57,21 @@ app.get("/", (req, res) => {
 // Health check endpoint
 app.get("/health", (req, res) => {
     res.status(200).json({ success: true, message: "Backend is healthy" });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' });
 });
 
 app.listen(PORT, () => {
