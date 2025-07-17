@@ -50,7 +50,7 @@ export interface OrderTracking {
   providedIn: 'root'
 })
 export class OrdersService implements OnDestroy {
-  private apiUrl = 'https://ponsbroilerss-backend.vercel.app/';
+  private apiUrl = 'https://ponsbroilerss-backend.vercel.app/api/orders';
 
   constructor(private authService: AuthService, private http: HttpClient) {
     // No need to subscribe to user changes for backend
