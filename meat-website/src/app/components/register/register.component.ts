@@ -255,10 +255,22 @@ export class RegisterComponent {
       this.error = 'Please enter a valid email address.';
       return;
     }
+    if (!this.user.name || this.user.name.length < 3) {
+      this.error = 'Please enter your full name first.';
+      return;
+    }
+    if (!this.user.phone || !/^[0-9]{10}$/.test(this.user.phone)) {
+      this.error = 'Please enter a valid 10-digit phone number first.';
+      return;
+    }
+    if (!this.user.password || this.user.password.length < 6) {
+      this.error = 'Please create a password first.';
+      return;
+    }
     this.isOtpLoading = true;
     this.error = '';
     this.success = '';
-    this.authService.sendEmailOTP(this.user.email).subscribe({
+    this.authService.sendEmailOTP(this.user.email, this.user.name, this.user.phone, this.user.password).subscribe({
       next: (response) => {
         this.isOtpSent = true;
         this.success = response?.message || 'OTP sent to your email.';
@@ -277,7 +289,7 @@ export class RegisterComponent {
     this.isOtpVerifying = true;
     this.error = '';
     
-    this.authService.verifyEmailOT(this.otp)
+    this.authService.verifyEmailOTP(this.otp)
       .subscribe({
         next: () => {
           this.isEmailVerified = true;

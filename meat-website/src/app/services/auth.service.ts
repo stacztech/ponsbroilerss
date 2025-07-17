@@ -80,7 +80,7 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/reset-password/${token}`, { password: newPassword }, { withCredentials: true });
   }
 
-  verifyEmailOT(code: string): Observable<any> {
+  verifyEmailOTP(code: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/verify-email`, { code }, { withCredentials: true }).pipe(
       tap(response => {
         this.currentUserSubject.next(response.user);
@@ -91,8 +91,13 @@ export class AuthService {
   /**
    * Sends an OTP to the given email address for verification.
    */
-  sendEmailOTP(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/send-otp`, { email }, { withCredentials: true });
+  sendEmailOTP(email: string, name?: string, phone?: string, password?: string): Observable<any> {
+    const requestBody: any = { email };
+    if (name) requestBody.name = name;
+    if (phone) requestBody.phone = phone;
+    if (password) requestBody.password = password;
+    
+    return this.http.post<any>(`${this.apiUrl}/send-otp`, requestBody, { withCredentials: true });
   }
 
   checkAuth(): void {
