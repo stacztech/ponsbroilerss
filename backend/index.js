@@ -17,7 +17,18 @@ const app = express();
 const PORT = process.env.PORT || 9000;
 const __dirname = path.resolve();
 
-app.use(cors({ origin: "https://ponsbroilerss-frontend.vercel.app", credentials: true }));
+// Configure CORS for both production and development
+const corsOptions = {
+  origin: [
+    "https://ponsbroilerss-frontend.vercel.app",
+    "http://localhost:4200"
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json()); // allows us to parse incoming requests:req.body
 app.use(cookieParser()); // allows us to parse incoming cookies
