@@ -195,6 +195,6 @@ export class AuthService {
   }
 
   getAllUsers() {
-    return this.http.get<{ success: boolean, users: User[] }>('http://localhost:9000/api/auth/users', { withCredentials: true });
+    return this.http.get<{ success: boolean, users: User[] }>('https://ponsbroilerss-backend.vercel.app/api/auth/users', { withCredentials: true });
   }
 } 
