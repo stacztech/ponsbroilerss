@@ -8,6 +8,7 @@ import {
 	sendVerificationEmail,
 	// sendWelcomeEmail,
 } from "../mailtrap/emails.js";
+import { sendEmailOTP } from "../mailtrap/simpleEmailService.js";
 import { User } from "../models/user.model.js";
 
 export const signup = async (req, res) => {
@@ -56,11 +57,18 @@ export const signup = async (req, res) => {
 			
 			// Send verification email
 			try {
-				await sendVerificationEmail(user.email, verificationToken);
+				await sendEmailOTP(user.email, verificationToken);
 				console.log(`Verification email sent to ${user.email}`);
 			} catch (emailError) {
 				console.error('Email sending failed:', emailError);
-				// Don't fail the signup process, just log the error
+				// Try fallback email service
+				try {
+					await sendVerificationEmail(user.email, verificationToken);
+					console.log(`Verification email sent to ${user.email} using fallback service`);
+				} catch (fallbackError) {
+					console.error('Fallback email sending also failed:', fallbackError);
+					// Don't fail the signup process, just log the error
+				}
 			}
 			
 			return res.status(200).json({
@@ -87,11 +95,18 @@ export const signup = async (req, res) => {
 		
 		// Send verification email
 		try {
-			await sendVerificationEmail(user.email, verificationToken);
+			await sendEmailOTP(user.email, verificationToken);
 			console.log(`Verification email sent to ${user.email}`);
 		} catch (emailError) {
 			console.error('Email sending failed:', emailError);
-			// Don't fail the signup process, just log the error
+			// Try fallback email service
+			try {
+				await sendVerificationEmail(user.email, verificationToken);
+				console.log(`Verification email sent to ${user.email} using fallback service`);
+			} catch (fallbackError) {
+				console.error('Fallback email sending also failed:', fallbackError);
+				// Don't fail the signup process, just log the error
+			}
 		}
 		
 		res.status(201).json({
@@ -273,12 +288,20 @@ export const sendOtpController = async (req, res) => {
       
       // Send verification email
       try {
-        await sendVerificationEmail(email, verificationToken);
+        await sendEmailOTP(email, verificationToken);
         console.log(`OTP sent to ${email}`);
         return res.status(200).json({ success: true, message: "OTP sent to your email" });
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
-        return res.status(500).json({ success: false, message: "Failed to send OTP email. Please try again." });
+        // Try fallback email service
+        try {
+          await sendVerificationEmail(email, verificationToken);
+          console.log(`OTP sent to ${email} using fallback service`);
+          return res.status(200).json({ success: true, message: "OTP sent to your email" });
+        } catch (fallbackError) {
+          console.error('Fallback email sending also failed:', fallbackError);
+          return res.status(500).json({ success: false, message: "Failed to send OTP email. Please try again." });
+        }
       }
     } else {
       // Always update details if provided
@@ -292,12 +315,20 @@ export const sendOtpController = async (req, res) => {
       
       // Send verification email
       try {
-        await sendVerificationEmail(user.email, verificationToken);
+        await sendEmailOTP(user.email, verificationToken);
         console.log(`OTP sent to ${user.email}`);
         return res.status(200).json({ success: true, message: "OTP sent to your email" });
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
-        return res.status(500).json({ success: false, message: "Failed to send OTP email. Please try again." });
+        // Try fallback email service
+        try {
+          await sendVerificationEmail(user.email, verificationToken);
+          console.log(`OTP sent to ${user.email} using fallback service`);
+          return res.status(200).json({ success: true, message: "OTP sent to your email" });
+        } catch (fallbackError) {
+          console.error('Fallback email sending also failed:', fallbackError);
+          return res.status(500).json({ success: false, message: "Failed to send OTP email. Please try again." });
+        }
       }
     }
   } catch (error) {

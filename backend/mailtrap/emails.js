@@ -8,19 +8,50 @@ import {
 
 dotenv.config();
 
-let transporter = nodemailer.createTransport({
-	host: "smtp.gmail.com",
-	port: 465,
-	secure: true,
-	auth: {
-		user: process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com",
-		pass: process.env.EMAIL_PASS || "xbew urkj vwjj wyne"
-	},
-});
+// Create transporter with multiple fallback configurations
+const createTransporter = () => {
+	const emailUser = process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com";
+	const emailPass = process.env.EMAIL_PASS || "xbew urkj vwjj wyne";
+	
+	console.log('Email configuration:', {
+		user: emailUser,
+		host: "smtp.gmail.com",
+		port: 587,
+		secure: false
+	});
+
+	// Try port 587 first (more reliable)
+	return nodemailer.createTransporter({
+		host: "smtp.gmail.com",
+		port: 587,
+		secure: false,
+		auth: {
+			user: emailUser,
+			pass: emailPass
+		},
+		tls: {
+			rejectUnauthorized: false
+		}
+	});
+};
+
+let transporter = createTransporter();
 
 export const sendVerificationEmail = async (email, verificationToken) => {
 	try {
 		console.log(`Attempting to send verification email to: ${email}`);
+		console.log(`Verification token: ${verificationToken}`);
+		
+		// Verify transporter configuration
+		try {
+			await transporter.verify();
+			console.log('SMTP server is ready to take our messages');
+		} catch (verifyError) {
+			console.error('SMTP server verification failed:', verifyError);
+			// Try to recreate transporter
+			transporter = createTransporter();
+		}
+		
 		const response = await transporter.sendMail({
 			from: process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com",
 			to: email,
@@ -31,8 +62,14 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 		console.log("Email sent successfully", response.messageId);
 		return { success: true, messageId: response.messageId };
 	} catch (error) {
-		console.error(`Error sending verification email:`, error);
-		throw new Error(`Error sending verification email: ${error.message}`);
+	   console.error(`Error sending verification email:`, error);
+	   if (error && error.response) {
+		   console.error('SMTP response:', error.response);
+	   }
+	   if (error && error.code) {
+		   console.error('SMTP error code:', error.code);
+	   }
+	   throw new Error(`Error sending verification email: ${error.message}`);
 	}
 };
 
