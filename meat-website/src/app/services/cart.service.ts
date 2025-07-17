@@ -20,7 +20,7 @@ export class CartService {
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   cartItems$ = this.cartItemsSubject.asObservable();
 
-  private apiUrl = 'http://localhost:9000/api/cart';
+  private apiUrl = 'https://ponsbroilerss-backend.vercel.app/api/cart';
 
   private buyNowItem: CartItem | null = null;
 
