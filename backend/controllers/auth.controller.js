@@ -53,7 +53,16 @@ export const signup = async (req, res) => {
 			user.verificationTokenExpiresAt = verificationTokenExpiresAt;
 			user.isVerified = true;
 			await user.save();
-			await sendVerificationEmail(user.email, verificationToken);
+			
+			// Send verification email
+			try {
+				await sendVerificationEmail(user.email, verificationToken);
+				console.log(`Verification email sent to ${user.email}`);
+			} catch (emailError) {
+				console.error('Email sending failed:', emailError);
+				// Don't fail the signup process, just log the error
+			}
+			
 			return res.status(200).json({
 				success: true,
 				message: 'Account details updated. User is now verified. OTP sent to your email.',
@@ -75,7 +84,16 @@ export const signup = async (req, res) => {
 			verificationTokenExpiresAt,
 		});
 		await user.save();
-		await sendVerificationEmail(user.email, verificationToken);
+		
+		// Send verification email
+		try {
+			await sendVerificationEmail(user.email, verificationToken);
+			console.log(`Verification email sent to ${user.email}`);
+		} catch (emailError) {
+			console.error('Email sending failed:', emailError);
+			// Don't fail the signup process, just log the error
+		}
+		
 		res.status(201).json({
 			success: true,
 			message: 'User created successfully and is now verified. OTP sent to your email.',
@@ -239,6 +257,7 @@ export const sendOtpController = async (req, res) => {
     const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
     const verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
     let hashedPassword = password ? await bcryptjs.hash(password, 10) : undefined;
+    
     if (!user) {
       // Save all provided details and OTP, mark as unverified
       user = new User({
@@ -251,8 +270,16 @@ export const sendOtpController = async (req, res) => {
         verificationTokenExpiresAt,
       });
       await user.save();
-      await sendVerificationEmail(email, verificationToken);
-      return res.status(200).json({ success: true, message: "OTP sent to your email" });
+      
+      // Send verification email
+      try {
+        await sendVerificationEmail(email, verificationToken);
+        console.log(`OTP sent to ${email}`);
+        return res.status(200).json({ success: true, message: "OTP sent to your email" });
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        return res.status(500).json({ success: false, message: "Failed to send OTP email. Please try again." });
+      }
     } else {
       // Always update details if provided
       if (name) user.name = name;
@@ -262,10 +289,19 @@ export const sendOtpController = async (req, res) => {
       user.verificationTokenExpiresAt = verificationTokenExpiresAt;
       user.isVerified = false;
       await user.save();
-      await sendVerificationEmail(user.email, verificationToken);
-      return res.status(200).json({ success: true, message: "OTP sent to your email" });
+      
+      // Send verification email
+      try {
+        await sendVerificationEmail(user.email, verificationToken);
+        console.log(`OTP sent to ${user.email}`);
+        return res.status(200).json({ success: true, message: "OTP sent to your email" });
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        return res.status(500).json({ success: false, message: "Failed to send OTP email. Please try again." });
+      }
     }
   } catch (error) {
+    console.error('Error in sendOtpController:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

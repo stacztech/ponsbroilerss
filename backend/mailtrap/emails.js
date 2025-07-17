@@ -13,27 +13,26 @@ let transporter = nodemailer.createTransport({
 	port: 465,
 	secure: true,
 	auth: {
-	  user: "ponsmuttonstallandbroilerss@gmail.com",
-	  pass: "xbew urkj vwjj wyne"
+		user: process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com",
+		pass: process.env.EMAIL_PASS || "xbew urkj vwjj wyne"
 	},
-  });
+});
 
 export const sendVerificationEmail = async (email, verificationToken) => {
-
-
 	try {
+		console.log(`Attempting to send verification email to: ${email}`);
 		const response = await transporter.sendMail({
+			from: process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com",
 			to: email,
-			subject: "Verify your email",
+			subject: "Verify your email - PONS Broilers",
 			html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
-			category: "Email Verification",
 		});
 
-		console.log("Email sent successfully", response);
+		console.log("Email sent successfully", response.messageId);
+		return { success: true, messageId: response.messageId };
 	} catch (error) {
-		console.error(`Error sending verification`, error);
-
-		throw new Error(`Error sending verification email: ${error}`);
+		console.error(`Error sending verification email:`, error);
+		throw new Error(`Error sending verification email: ${error.message}`);
 	}
 };
 
@@ -59,35 +58,37 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 // };
 
 export const sendPasswordResetEmail = async (email, resetURL) => {
-	
 	try {
+		console.log(`Attempting to send password reset email to: ${email}`);
 		const response = await transporter.sendMail({
+			from: process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com",
 			to: email,
-			subject: "Reset your password",
+			subject: "Reset your password - PONS Broilers",
 			html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL),
-			category: "Password Reset",
 		});
-	} catch (error) {
-		console.error(`Error sending password reset email`, error);
 
-		throw new Error(`Error sending password reset email: ${error}`);
+		console.log("Password reset email sent successfully", response.messageId);
+		return { success: true, messageId: response.messageId };
+	} catch (error) {
+		console.error(`Error sending password reset email:`, error);
+		throw new Error(`Error sending password reset email: ${error.message}`);
 	}
 };
 
 export const sendResetSuccessEmail = async (email) => {
-
 	try {
+		console.log(`Attempting to send password reset success email to: ${email}`);
 		const response = await transporter.sendMail({
+			from: process.env.EMAIL_USER || "ponsmuttonstallandbroilerss@gmail.com",
 			to: email,
-			subject: "Password Reset Successful",
+			subject: "Password Reset Successful - PONS Broilers",
 			html: PASSWORD_RESET_SUCCESS_TEMPLATE,
-			category: "Password Reset",
 		});
 
-		console.log("Password reset email sent successfully", response);
+		console.log("Password reset success email sent successfully", response.messageId);
+		return { success: true, messageId: response.messageId };
 	} catch (error) {
-		console.error(`Error sending password reset success email`, error);
-
-		throw new Error(`Error sending password reset success email: ${error}`);
+		console.error(`Error sending password reset success email:`, error);
+		throw new Error(`Error sending password reset success email: ${error.message}`);
 	}
 };

@@ -38,16 +38,13 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/cart", cartRoutes);
 
-if (process.env.NODE_ENV === "production") {
-	app.use(express.static(path.join(__dirname, "/frontend/dist")));
-	
-	app.get("*", (req, res) => {
-		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-	});
-}
-
 app.get("/", (req, res) => {
     res.status(200).json({ success: true, message: "API is working" });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+    res.status(200).json({ success: true, message: "Backend is healthy" });
 });
 
 app.listen(PORT, () => {
