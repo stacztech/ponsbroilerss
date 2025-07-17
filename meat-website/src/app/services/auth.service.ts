@@ -37,8 +37,8 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  private apiUrl = 'http://localhost:9000/api/auth';
-  private addressApiUrl = 'http://localhost:9000/api/addresses';
+  private apiUrl = 'https://ponsbroilerss-backend.vercel.app/api/auth';
+  private addressApiUrl = 'https://ponsbroilerss-backend.vercel.app/api/addresses';
 
   constructor(private http: HttpClient, private cartService: CartService) {
     this.checkAuth();
