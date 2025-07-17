@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 9000;
 const __dirname = path.resolve();
 
-app.use(cors({ origin: "http://localhost:4200", credentials: true }));
+app.use(cors({ origin: "https://ponsbroilerss-frontend.vercel.app", credentials: true }));
 
 app.use(express.json()); // allows us to parse incoming requests:req.body
 app.use(cookieParser()); // allows us to parse incoming cookies
