@@ -1,21 +1,27 @@
 {
   "version": 2,
-  "projects": [
+  "builds": [
     {
-      "name": "meat-website",
-      "root": "meat-website",
-      "buildCommand": "npm run build",
-      "outputDirectory": "dist/meat-website",
-      "framework": "angular"
+      "src": "meat-website/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "outputDirectory": "dist/meat-website",
+        "buildCommand": "npm run build"
+      }
     },
     {
-      "name": "backend",
-      "root": "backend",
-      "outputDirectory": "dist",
-      "buildCommand": "npm install",
-      "devCommand": "npm run dev",
-      "installCommand": "npm install",
-      "startCommand": "node index.js"
+      "src": "backend/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "meat-website/dist/meat-website/$1"
     }
   ]
 }
