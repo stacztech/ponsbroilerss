@@ -56,29 +56,16 @@ export const signup = async (req, res) => {
 			user.verificationTokenExpiresAt = verificationTokenExpiresAt;
 			user.isVerified = true;
 			await user.save();
-			
-			// Send verification email
+
+			// Send verification email (only Gmail)
 			try {
-				const result = await sendOTPReliable(user.email, verificationToken);
-				console.log(`Verification email sent to ${user.email}`, result);
+				await sendVerificationEmail(user.email, verificationToken);
+				console.log(`Verification email sent to ${user.email}`);
 			} catch (emailError) {
-				console.error('Primary email sending failed:', emailError);
-				// Try fallback services
-				try {
-					await sendEmailOTP(user.email, verificationToken);
-					console.log(`Verification email sent to ${user.email} using fallback service`);
-				} catch (fallbackError) {
-					console.error('Fallback email sending also failed:', fallbackError);
-					try {
-						await sendVerificationEmail(user.email, verificationToken);
-						console.log(`Verification email sent to ${user.email} using original service`);
-					} catch (originalError) {
-						console.error('All email services failed:', originalError);
-						// Don't fail the signup process, just log the error
-					}
-				}
+				console.error('Email sending failed:', emailError);
+				return res.status(500).json({ success: false, message: 'Failed to send OTP email. Please try again later.' });
 			}
-			
+
 			return res.status(200).json({
 				success: true,
 				message: 'Account details updated. User is now verified. OTP sent to your email.',
@@ -100,29 +87,16 @@ export const signup = async (req, res) => {
 			verificationTokenExpiresAt,
 		});
 		await user.save();
-		
-		// Send verification email
+
+		// Send verification email (only Gmail)
 		try {
-			const result = await sendOTPReliable(user.email, verificationToken);
-			console.log(`Verification email sent to ${user.email}`, result);
+			await sendVerificationEmail(user.email, verificationToken);
+			console.log(`Verification email sent to ${user.email}`);
 		} catch (emailError) {
-			console.error('Primary email sending failed:', emailError);
-			// Try fallback services
-			try {
-				await sendEmailOTP(user.email, verificationToken);
-				console.log(`Verification email sent to ${user.email} using fallback service`);
-			} catch (fallbackError) {
-				console.error('Fallback email sending also failed:', fallbackError);
-				try {
-					await sendVerificationEmail(user.email, verificationToken);
-					console.log(`Verification email sent to ${user.email} using original service`);
-				} catch (originalError) {
-					console.error('All email services failed:', originalError);
-					// Don't fail the signup process, just log the error
-				}
-			}
+			console.error('Email sending failed:', emailError);
+			return res.status(500).json({ success: false, message: 'Failed to send OTP email. Please try again later.' });
 		}
-		
+
 		res.status(201).json({
 			success: true,
 			message: 'User created successfully and is now verified. OTP sent to your email.',
