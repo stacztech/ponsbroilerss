@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { tap, delay, map, catchError } from 'rxjs/operators';
 import { CartService } from './cart.service';
+import { environment } from '../../environments/environment';
 
 export interface Address {
   id: string;
@@ -37,8 +38,8 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  private apiUrl = 'https://ponsbroilerss-backend.vercel.app/api/auth';
-  private addressApiUrl = 'https://ponsbroilerss-backend.vercel.app/api/addresses';
+  private apiUrl = `${environment.apiUrl}/auth`;
+  private addressApiUrl = `${environment.apiUrl}/addresses`;
 
   constructor(private http: HttpClient, private cartService: CartService) {
     this.checkAuth();
@@ -195,6 +196,6 @@ export class AuthService {
   }
 
   getAllUsers() {
-    return this.http.get<{ success: boolean, users: User[] }>('https://ponsbroilerss-backend.vercel.app/api/auth/users', { withCredentials: true });
+    return this.http.get<{ success: boolean, users: User[] }>(`${this.apiUrl}/users`, { withCredentials: true });
   }
 } 
